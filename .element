@@ -3618,7 +3618,7 @@ if len(sys.argv)==1:
 		Element=input('>> ')
 		get_element(Element)
 else:
-	if sys.argv[-1]=="table":
+	if sys.argv[-1]=="--table":
 		print(table)
 		exit()
 	Element=sys.argv[1]
