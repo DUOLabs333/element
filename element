@@ -3604,14 +3604,18 @@ def get_result(Dict):
 
 def get_element(element):
 	if element.lower() in elements:
-		result=get_result(pt[element.title()])
-		pprint(result,sort_dicts=False)
+		pass
 	elif element.lower() in symbols:
 		element=elements[symbols.index(element.lower())]
-		result=get_result(pt[element.title()])
-		pprint(result,sort_dicts=False)
 	else:
 		print("No such element")
+		return
+
+	result={}
+	result['Name']=element.title()
+	result=result | get_result(pt[element.title()])
+
+	pprint(result,sort_dicts=False)
 
 if len(sys.argv)==1:
 	while True:
