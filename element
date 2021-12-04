@@ -3593,13 +3593,9 @@ keepnames=["Symbol","Protons","Electrons","Neutrons", "Period", "Group", "Electr
 keepkeys=["Symbol","NumberofProtons","NumberofElectrons","NumberofNeutrons","Period","Group","ElectronicConfiguration", "AtomicMass","AtomicNumber","AtomicRadius","Density","SpecificHeat","Electronegativity","MeltingPoint","BoilingPoint","FirstIonization"]
 
 def get_result(Dict):
-	dict_local=copy.deepcopy(Dict)
-	for key in list(dict_local.keys()):
-		if key not in keepkeys:
-			del dict_local[key]
-	for i in range(len(keepkeys)):
-		dict_local[keepnames[i]]=dict_local.pop(keepkeys[i])
-
+	dict_local={}
+	for key in keepkeys:
+		dict_local[keepnames[keepkeys.index(key)]]=Dict[key]
 	return dict_local
 
 def get_element(element):
