@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+from pyparsing import (Suppress, Word, nums, alphas, Regex, Forward, Group, 
+						Optional, OneOrMore, ParseResults)
+from collections import defaultdict
+
 pt="""{
 	"Hydrogen": {
 		"AtomicNumber": 1,
@@ -3567,13 +3571,13 @@ table=r"""
 |  Fr |  Ra |  Ac \  Rf |  Db |  Sg |  Bh |  Hs |  Mt |  Ds |  Rg |  Cn |  Nh |  Fl |  Mc |  Lv |  Ts |  Og |
 |_____|_____|_____/_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|
 
-                  ____________________________________________________________________________________ 
-                  \  58 |  59 |  60 |  61 |  62 |  63 |  64 |  65 |  66 |  67 |  68 |  69 |  70 |  71 \
-                  /  Ce |  Pr |  Nd |  Pm |  Sm |  Eu |  Gd |  Tb |  Dy |  Ho |  Er |  Tm |  Yb |  Lu /
-                  \_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____\
-                  /  90 |  91 |  92 |  93 |  94 |  95 |  96 |  97 |  98 |  99 | 100 | 101 | 102 | 103 /
-                  \  Th |  Pa |  U  |  Np |  Pu |  Am |  Cm |  Bk |  Cf |  Es |  Fm |  Md |  No |  Lr \
-                  /_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____/
+				  ____________________________________________________________________________________ 
+				  \  58 |  59 |  60 |  61 |  62 |  63 |  64 |  65 |  66 |  67 |  68 |  69 |  70 |  71 \
+				  /  Ce |  Pr |  Nd |  Pm |  Sm |  Eu |  Gd |  Tb |  Dy |  Ho |  Er |  Tm |  Yb |  Lu /
+				  \_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____\
+				  /  90 |  91 |  92 |  93 |  94 |  95 |  96 |  97 |  98 |  99 | 100 | 101 | 102 | 103 /
+				  \  Th |  Pa |  U  |  Np |  Pu |  Am |  Cm |  Bk |  Cf |  Es |  Fm |  Md |  No |  Lr \
+				  /_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____/
 
 		 """
 import json
@@ -3592,36 +3596,116 @@ keepnames=["Symbol","Protons","Electrons","Neutrons", "Period", "Group", "Electr
 
 keepkeys=["Symbol","NumberofProtons","NumberofElectrons","NumberofNeutrons","Period","Group","ElectronicConfiguration", "AtomicMass","AtomicNumber","AtomicRadius","Density","SpecificHeat","Electronegativity","MeltingPoint","BoilingPoint","FirstIonization"]
 
-def get_result(Dict):
-	dict_local={}
-	for key in keepkeys:
-		dict_local[keepnames[keepkeys.index(key)]]=Dict[key]
-	return dict_local
-
-def get_element(element):
-	if element.lower() in elements:
-		pass
-	elif element.lower() in symbols:
-		element=elements[symbols.index(element.lower())]
+def getResult(Element):
+	
+	if isinstance(Element,str):
+		temp_dict={}
+		for key in keepkeys:
+			temp_dict[keepnames[keepkeys.index(key)]]=pt[Element][key]
+			
+		result={}
+		result['Name']=Element
+		result=result | temp_dict
 	else:
-		print("No such element")
-		return
+		result={}
+		#Just concotenate eleemtn and number
+		#Make 'Molar Mass'
+		result['Compound']=''.join([str(_[0])+str(_[1]) for _ in Element])
+		result['Molar Mass']=sum([_[1]*float(getResult(getElement(_[0]))['Atomic mass']) for _ in Element])
+	return result
+	
 
-	result={}
-	result['Name']=element.title()
-	result=result | get_result(pt[element.title()])
+def getElement(Input):
+	if Input.lower() in elements:
+		return Input.title()
+	elif Input.lower() in symbols:
+		return elements[symbols.index(Input.lower())].title()
+	else:
+	    raise Exception
 
-	pprint(result,sort_dicts=False)
+def parseCompound(Input):
+	LPAR,RPAR = map(Suppress,"()")
+	integer = Word(nums)
+	
+	# add parse action to convert integers to ints, to support doing addition 
+	# and multiplication at parse time
+	integer.setParseAction(lambda t:int(t[0]))
+	
+	element = Word(alphas.upper(), alphas.lower())
+	# or if you want to be more specific, use this Regex
+	# element = Regex(r"A[cglmrstu]|B[aehikr]?|C[adeflmorsu]?|D[bsy]|E[rsu]|F[emr]?|"
+	#                 "G[ade]|H[efgos]?|I[nr]?|Kr?|L[airu]|M[dgnot]|N[abdeiop]?|"
+	#                 "Os?|P[abdmortu]?|R[abefghnu]|S[bcegimnr]?|T[abcehilm]|"
+	#                 "Uu[bhopqst]|U|V|W|Xe|Yb?|Z[nr]")
+	
+	# forward declare 'formula' so it can be used in definition of 'term'
+	formula = Forward()
+	
+	term = Group((element | Group(LPAR + formula + RPAR)("subgroup")) + 
+					Optional(integer, default=1)("mult"))
+	
+	# define contents of a formula as one or more terms
+	formula << OneOrMore(term)
+	
+	
+	# add parse actions for parse-time processing
+	
+	# parse action to multiply out subgroups
+	def multiplyContents(tokens):
+		t = tokens[0]
+		# if these tokens contain a subgroup, then use multiplier to
+		# extend counts of all elements in the subgroup
+		if t.subgroup:
+			mult = t.mult
+			for term in t.subgroup:
+				term[1] *= mult
+			return t.subgroup
+	term.setParseAction(multiplyContents)
+	
+	# add parse action to sum up multiple references to the same element
+	def sumByElement(tokens):
+		elementsList = [t[0] for t in tokens]
+	
+		# construct set to see if there are duplicates
+		duplicates = len(elementsList) > len(set(elementsList))
+	
+		# if there are duplicate element names, sum up by element and
+		# return a new nested ParseResults
+		if duplicates:
+			ctr = defaultdict(int)
+			for t in tokens:
+				ctr[t[0]] += t[1]
+			return ParseResults([ParseResults([k,v]) for k,v in ctr.items()])
+	formula.setParseAction(sumByElement)
+	return formula.parseString(Input)
+
+def parseInput(Input):
+	if any(i.isdigit() for i in Input):
+	   try:
+	       result=parseCompound(Input)
+	   except:
+	       prit("Incorrect Molecule")
+	       return
+	else:
+	   try:
+	       result=getElement(Input)
+	   except:
+	       print("Incorrect Element")
+	       return  
+	pprint(getResult(result),sort_dicts=False,width=1)
+	
+def repl():
+	while True:
+		Input=input('>> ')
+		parseInput(Input)
 
 if len(sys.argv)==1:
-	while True:
-		Element=input('>> ')
-		get_element(Element)
+	repl()
 else:
 	if sys.argv[-1]=="--table":
 		print(table)
 		exit()
-	Element=sys.argv[1]
-	get_element(Element)
+	Input=sys.argv[1]
+	parseInput(Input)
 
 	
