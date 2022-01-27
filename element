@@ -3684,7 +3684,7 @@ def parseInput(Input):
 	   try:
 	       result=parseCompound(Input)
 	   except:
-	       prit("Incorrect Molecule")
+	       print("Incorrect Molecule")
 	       return
 	else:
 	   try:
