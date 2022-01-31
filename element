@@ -3585,6 +3585,7 @@ import readline
 from pprint import pprint
 import copy
 import sys
+import math
 
 pt=json.loads(pt)
 
@@ -3611,7 +3612,7 @@ def getResult(Element):
 		#Just concotenate eleemtn and number
 		#Make 'Molar Mass'
 		result['Compound']=''.join([str(_[0])+str(_[1]) for _ in Element])
-		result['Molar Mass']=sum([_[1]*float(getResult(getElement(_[0]))['Atomic mass']) for _ in Element])
+		result['Molar Mass']=math.fsum([_[1]*float(getResult(getElement(_[0]))['Atomic mass']) for _ in Element])
 	return result
 	
 
