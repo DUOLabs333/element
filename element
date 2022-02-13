@@ -3609,14 +3609,12 @@ def getResult(Element):
 		result=result | temp_dict
 	else:
 		result={}
-		#Just concotenate eleemtn and number
-		#Make 'Molar Mass'
 		result['Compound']=''.join([str(_[0])+str(_[1]) for _ in Element])
-		result['Molar Mass']=math.fsum([_[1]*float(getResult(getElement(_[0]))['Atomic mass']) for _ in Element])
+		result['Molar Mass']=math.fsum([_[1]*float(getResult(parseElement(_[0]))['Atomic mass']) for _ in Element])
 	return result
 	
 
-def getElement(Input):
+def parseElement(Input):
 	if Input.lower() in elements:
 		return Input.title()
 	elif Input.lower() in symbols:
@@ -3681,18 +3679,14 @@ def parseCompound(Input):
 	return formula.parseString(Input)
 
 def parseInput(Input):
-	if any(i.isdigit() for i in Input):
-	   try:
-	       result=parseCompound(Input)
-	   except:
-	       print("Incorrect Molecule")
-	       return
-	else:
-	   try:
-	       result=getElement(Input)
-	   except:
-	       print("Incorrect Element")
-	       return  
+	try:
+		result=parseElement(Input)
+	except:
+		try:
+			result=parseCompound(Input)
+		except:
+			print("Incorrect Element/Molecule")
+			return
 	pprint(getResult(result),sort_dicts=False,width=1)
 	
 def repl():
