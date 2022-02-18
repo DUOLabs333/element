@@ -3680,13 +3680,13 @@ def parseCompound(Input):
 
 def parseInput(Input):
 	try:
-		result=parseElement(Input)
-	except:
-		try:
+		if Input.islower():
+			result=parseElement(Input)
+		else:
 			result=parseCompound(Input)
-		except:
-			print("Incorrect Element/Molecule")
-			return
+	except:
+		print("Incorrect Element/Molecule")
+		return
 	pprint(getResult(result),sort_dicts=False,width=1)
 	
 def repl():
