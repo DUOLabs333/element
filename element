@@ -3586,7 +3586,7 @@ from pprint import pprint
 import copy
 import sys
 import math
-
+from decimal import Decimal
 pt=json.loads(pt)
 
 elements=list(map(str.lower, list(pt.keys())))
@@ -3610,7 +3610,7 @@ def getResult(Element):
 	else:
 		result={}
 		result['Compound']=''.join([str(_[0])+str(_[1]) for _ in Element])
-		result['Molar Mass']=math.fsum([_[1]*float(getResult(parseElement(_[0]))['Atomic mass']) for _ in Element])
+		result['Molar Mass']=float(sum([Decimal(_[1]*float(getResult(parseElement(_[0]))['Atomic mass'])) for _ in Element]))
 	return result
 	
 
