@@ -3620,7 +3620,7 @@ def parseElement(Input):
 	elif Input.lower() in symbols:
 		return elements[symbols.index(Input.lower())].title()
 	else:
-	    raise Exception
+		raise Exception
 
 def parseCompound(Input):
 	LPAR,RPAR = map(Suppress,"()")
@@ -3695,7 +3695,11 @@ def repl():
 		parseInput(Input)
 
 if len(sys.argv)==1:
-	repl()
+	try:
+	   repl()
+	except (EOFError,KeyboardInterrupt):
+		print()
+		exit()
 else:
 	if sys.argv[-1]=="--table":
 		print(table)
