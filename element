@@ -24,6 +24,8 @@ table = base64.b64decode(b'IF9fX19fICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI
 
 table=table.decode('unicode_escape')
 
+
+
 import json
 
 import readline
