@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 
+< include pyparsing/pyparsing.pyx >
+
 from pyparsing import (Suppress, Word, nums, alphas, Regex, Forward, Group, 
 						Optional, OneOrMore, ParseResults)
+
+
 from collections import defaultdict
 
 < include "elements.json" pt >
 
 < include "table.txt" table >
 
-table=table.decode('unicode_escape')
+table=table.decode()
+
 
 import json
 import readline
@@ -58,7 +63,7 @@ def parseCompound(Input):
 	
 	# add parse action to convert integers to ints, to support doing addition 
 	# and multiplication at parse time
-	integer.setParseAction(lambda t:int(t[0]))
+	integer.setParseAction(lambda dummy1,dummy2,t:int(t[0]))
 	
 	element = Word(alphas.upper(), alphas.lower())
 	# or if you want to be more specific, use this Regex
@@ -80,7 +85,7 @@ def parseCompound(Input):
 	# add parse actions for parse-time processing
 	
 	# parse action to multiply out subgroups
-	def multiplyContents(tokens):
+	def multiplyContents(dummy1,dummy2,tokens):
 		t = tokens[0]
 		# if these tokens contain a subgroup, then use multiplier to
 		# extend counts of all elements in the subgroup
@@ -92,7 +97,7 @@ def parseCompound(Input):
 	term.setParseAction(multiplyContents)
 	
 	# add parse action to sum up multiple references to the same element
-	def sumByElement(tokens):
+	def sumByElement(w,x,tokens):
 		elementsList = [t[0] for t in tokens]
 	
 		# construct set to see if there are duplicates
@@ -109,6 +114,7 @@ def parseCompound(Input):
 	return formula.parseString(Input)
 
 def parseInput(Input):
+	parseCompound(Input)
 	try:
 		if Input.islower():
 			result=parseElement(Input)
