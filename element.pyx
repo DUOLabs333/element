@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-< include pyparsing/pyparsing.pyx >
+# < include pyparsing/pyparsing.pyx >
 
 from pyparsing import (Suppress, Word, nums, alphas, Regex, Forward, Group, 
 						Optional, OneOrMore, ParseResults)
@@ -8,9 +8,9 @@ from pyparsing import (Suppress, Word, nums, alphas, Regex, Forward, Group,
 
 from collections import defaultdict
 
-< include "elements.json" pt >
+# < include "elements.json" pt >
 
-< include "table.txt" table >
+# < include "table.txt" table >
 
 table=table.decode()
 
