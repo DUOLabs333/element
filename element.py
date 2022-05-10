@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# < include pyparsing/pyparsing.pyx >
+# < include pyparsing/pyparsing.py >
 
 from pyparsing import (Suppress, Word, nums, alphas, Regex, Forward, Group, 
 						Optional, OneOrMore, ParseResults)
