@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# < include pyparsing/pyparsing.py >
+# < include 'modules/pyparsing.py' >
 
 from pyparsing import (Suppress, Word, nums, alphas, Regex, Forward, Group, 
 						Optional, OneOrMore, ParseResults)
@@ -114,7 +114,6 @@ def parseCompound(Input):
 	return formula.parseString(Input)
 
 def parseInput(Input):
-	parseCompound(Input)
 	try:
 		if Input.islower():
 			result=parseElement(Input)
