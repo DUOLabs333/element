@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-# < include 'modules/pyparsing.py' >
 
 from pyparsing import (Suppress, Word, nums, alphas, Regex, Forward, Group, 
 						Optional, OneOrMore, ParseResults)
@@ -8,11 +7,9 @@ from pyparsing import (Suppress, Word, nums, alphas, Regex, Forward, Group,
 
 from collections import defaultdict
 
-# < include "elements.json" pt >
-
-# < include "table.txt" table >
-
-table=table.decode()
+import os
+pt=open(os.path.join(__file__,"..","elements.json"),"r").read()
+table=open(os.path.join(__file__,"..","elements.json"),"r").read()
 
 
 import json
@@ -129,17 +126,18 @@ def repl():
 		Input=input('>> ')
 		parseInput(Input)
 
-if len(sys.argv)==1:
-	try:
-	   repl()
-	except (EOFError,KeyboardInterrupt):
-		print()
-		exit()
-else:
-	if sys.argv[-1]=="--table":
-		print(table)
-		exit()
-	Input=sys.argv[1]
-	parseInput(Input)
+def main():
+    if len(sys.argv)==1:
+    	try:
+    	   repl()
+    	except (EOFError,KeyboardInterrupt):
+    		print()
+    		exit()
+    else:
+    	if sys.argv[-1]=="--table":
+    		print(table)
+    		exit()
+    	Input=sys.argv[1]
+    	parseInput(Input)
 
 	
