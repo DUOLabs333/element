@@ -9,7 +9,7 @@ from collections import defaultdict
 
 import os
 pt=open(os.path.join(__file__,"..","elements.json"),"r").read()
-table=open(os.path.join(__file__,"..","elements.json"),"r").read()
+table=open(os.path.join(__file__,"..","table.txt"),"r").read().decode()
 
 
 import json
